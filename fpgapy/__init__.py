@@ -1,1 +1,1 @@
-from .fpgapy import array, set_event_loop
+from .fpgapy import *

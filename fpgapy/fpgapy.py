@@ -49,7 +49,7 @@ def set_event_loop(loop):
 
 import sys
 import ctypes
-from .async_func import async_add
+from .async_func import *
 
 from math import sqrt
 import operator
@@ -1143,6 +1143,9 @@ class ndarray(object):
         return sqrt(self.var(axis))
 
     def __add__(self, a):
+        return self._event_loop.create_task(async_add(self, a))
+
+    def __radd__(self, a):
         return self._event_loop.create_task(async_add(self, a))
 
 class nditer:
