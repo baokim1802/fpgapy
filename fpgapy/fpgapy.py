@@ -34,10 +34,6 @@ certain features may not be supported.
 
 event_loop = None
 
-def set_event_loop(loop):
-    global event_loop
-    event_loop = loop
-
 # todo: keep track of readonly better
 # todo: mathematical operators
 # todo: more methods?
@@ -50,6 +46,11 @@ def set_event_loop(loop):
 import sys
 import ctypes
 from .async_func import *
+
+def set_event_loop(loop):
+    global event_loop
+    event_loop = loop
+    set_event_loop_(loop)
 
 from math import sqrt
 import operator
@@ -376,12 +377,8 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
     else:
         return a
 
-def add(ndarray_vec1, ndarray_vec2):
-    c = []
-    for a, b in zip(ndarray_vec1, ndarray_vec2):
-        c.append(a+b)
-    cRay = array(c)
-    return cRay
+def add(a0, a1):
+    return async_add(a0, a1)
 
 def subtract(ndarray_vec1, ndarray_vec2):
     c = []
@@ -546,12 +543,10 @@ class ndarray(object):
     """
     
     __slots__ = ['_dtype', '_shape', '_strides', '_itemsize', 
-                 '_offset', '_base', '_data', '_event_loop']
+                 '_offset', '_base', '_data']
     
     def __init__(self, shape, dtype='float64', buffer=None, offset=0,
                  strides=None, order=None):
-        global event_loop
-        self._event_loop = event_loop
         # Check order
         if order is not None:
             raise RuntimeError('ndarray order parameter is not supported')
@@ -1143,10 +1138,10 @@ class ndarray(object):
         return sqrt(self.var(axis))
 
     def __add__(self, a):
-        return self._event_loop.create_task(async_add(self, a))
+        return add(self, a)
 
     def __radd__(self, a):
-        return self._event_loop.create_task(async_add(self, a))
+        return add(a, self)
 
 class nditer:
     def __init__(self, array):
